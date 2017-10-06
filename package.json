@@ -1,0 +1,9 @@
+{
+  "name": "miniKerberos",
+  "version": "0.0.1",
+  "main": "index.html",
+  "single-instance": false,
+  "dependencies": {
+    "jsonfile": "^4.0.0"
+  }
+}

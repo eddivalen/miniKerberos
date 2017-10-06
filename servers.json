@@ -1,0 +1,7 @@
+{
+  "servidores": [
+    {"nombre": "juego","pass": "11"},
+    {"nombre": "estudio","pass": "22"},
+    {"nombre": "trabajo","pass": "33"}
+  ]
+}

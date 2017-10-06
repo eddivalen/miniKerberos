@@ -1,0 +1,13 @@
+/locales
+/node_modules/*
+credits.html
+d3dcompiler_47.dll
+ffmpegsumo.dll
+libEGL.dll
+libGLESv2.dll
+icudtl.dat
+nw.exe
+nw.pak
+nwjc.exe
+pdf.dll
+package-lock.json

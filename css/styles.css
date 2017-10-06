@@ -1,0 +1,48 @@
+body{
+	font-family: sans-serif;
+	font-size: 16px;
+	color: gray;
+}
+
+.option-menu{
+	display: block;
+	width: 400px;
+	margin: 0 auto;
+}
+
+.option-menu a{
+	display: block;
+	font-size: 1.2em;
+	padding: 0.2em 1em;
+	margin: 1em 0;
+	text-align: center;
+	text-decoration: none;
+}
+
+.option-menu #server{
+	background-color: #d03939;
+	color: white;	
+}
+
+.option-menu #cliente{
+	background-color: #2196f3;
+	color: white;
+}
+
+.option-menu h1{
+	text-align: center;
+	color: #ccc;
+}
+
+input {
+    -webkit-appearance: textfield;
+    background-color: white;
+    -webkit-rtl-ordering: logical;
+    user-select: text;
+    cursor: auto;
+    padding: 1px;
+    border-width: 2px;
+    border-style: inset;
+    border-color: initial;
+    border-image: initial;
+}
