@@ -1,7 +1,7 @@
 //var PORT = 33333;
 'use strict';
 var net = require('net');
-var HOST = '172.168.2.105';
+var HOST = '192.168.13.126';
 var PORT = 34522;
 var user = window.user;
 // var passwords = window.passwords;
@@ -109,8 +109,14 @@ var sendClienteTGS = function(socket, usuario) {
     // Buscar el usuario
     // Encriptar el TGS usando el password del user
     // Enviar TGS generado
-    if(!_.contains(usuarios,usuario)){
-        console.log('HOLAAAAAAAAAA');
+    var array = $.map(usuarios, function(value, index) {
+        return [value];
+    });
+    var vec = _.last(array);
+    u = _.find(vec, function (o) { return o.username == usuario; })
+    if(_.isMatch(usuarios, usuario) ){
+        pass = u.pass;
+        console.log(pass);
     }
     if(pass != 0 && band == 0){
         mensaje['clientTGS'] = encrypt(passwords.TGSKEY, pass);

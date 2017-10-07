@@ -1,7 +1,7 @@
 //var PORT = 33334;
 // var HOST = '127.0.0.1';
 var net = require('net');
-var HOST = '172.168.2.105';
+var HOST = '192.168.13.126';
 var PORT = 34522;
 var clientTGS = '';
 var ticketGrantTicket = undefined;
