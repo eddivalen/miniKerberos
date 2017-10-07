@@ -1,7 +1,7 @@
 //var PORT = 33334;
 // var HOST = '127.0.0.1';
 var net = require('net');
-var HOST = '192.168.13.126';
+var HOST = '172.168.2.105';
 var PORT = 34522;
 var clientTGS = '';
 var ticketGrantTicket = undefined;
@@ -9,6 +9,7 @@ var mensajeE = '';
 var password = '';
 var servicio = '';
 var template = _.template($('#mensajes-template').html());
+var own_resumen;
 var client = net.createConnection({ port: PORT, host: HOST }, function() {
     //'connect' listener
     console.log('connected to server!');
@@ -34,9 +35,16 @@ client.on('data', function(data) {
             // DESENCRIPTAR SEGUN PASSWORD
             console.log('PASSWORD CLIENTE: '+password);
             console.log('MENSAJET TGS: '+mensaje.clientTGS);
-            clientTGS = decrypt(mensaje.clientTGS, password);
-            $("#messages").append(`<p>Se desencripto: ${clientTGS}</p>`);
-            break;
+            console.log('Hash recibido:'+mensaje.hash);
+            var resumen = hash(mensaje.clientTGS);
+            if(resumen === mensaje.hash){
+                clientTGS = decrypt(mensaje.clientTGS, password);
+                $("#messages").append(`<p>Se desencripto: ${clientTGS}</p>`);
+                $("#messages").append(`<p>ClientTGS Recibido: ${mensaje.clientTGS} </p>`);
+                $("#messages").append(`<p>HASH Recibido: ${mensaje.hash} HASH Generado: ${resumen} </p>`);
+            }
+
+        break;
 
         case '12':
             console.log('RECIBIDO MENSAJE B');
@@ -87,7 +95,9 @@ $("#enviar").on('click', function() {
     if(servicio && password && usuario){
         mensaje['code'] = '00';
         mensaje['usuario'] = usuario;
+        mensaje['servicio'] = servicio;
         client.write(JSON.stringify(mensaje));
+        own_resumen = hash(password);
         $('#formCliente').hide();
         $('#messages').removeClass('hide');
         console.log('enviado mensaje 00');
