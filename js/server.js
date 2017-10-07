@@ -1,7 +1,7 @@
 //var PORT = 33333;
 'use strict';
 var net = require('net');
-var HOST = '192.168.13.126';
+var HOST = '172.168.2.103';
 var PORT = 34522;
 var user = window.user;
 // var passwords = window.passwords;
@@ -58,7 +58,7 @@ var server = net.createServer(function(sock) {
                 if(TGS === passwords.TGSKEY){
                     sendTicketGrantingClient(cliente, mensaje.servicio);
                 }
-                $("#list-clientes").append(`<li class='list-li' >Llegó mensaje C ${JSON.stringify(mensaje)}</li>`);
+                $("#list-clientes").append(`<p>Llegó mensaje C ${JSON.stringify(mensaje)}</p>`);
                 break;
 
             case '22':
