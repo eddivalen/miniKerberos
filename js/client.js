@@ -36,24 +36,21 @@ client.on('data', function(data) {
             console.log('PASSWORD CLIENTE: '+password);
             console.log('MENSAJET TGS: '+mensaje.clientTGS);
             console.log('Hash recibido:'+mensaje.hash);
-            var resumen = hash(mensaje.clientTGS);
-            if(resumen === mensaje.hash){
-                clientTGS = decrypt(mensaje.clientTGS, password);
-                $("#messages").append(`<p>Se desencripto: ${clientTGS}</p>`);
-                $("#messages").append(`<p>ClientTGS Recibido: ${mensaje.clientTGS} </p>`);
-                $("#messages").append(`<p>HASH Recibido: ${mensaje.hash} HASH Generado: ${resumen} </p>`);
-            }
-
+            clientTGS = decrypt(mensaje.clientTGS, hash(password));
+            $("#messages").append(`<p>Se desencripto: ${clientTGS}</p>`);
+            $("#messages").append(`<p>ClientTGS Recibido: ${mensaje.clientTGS} </p>`);
+            //$("#messages").append(`<p>HASH Recibido: ${mensaje.hash} HASH Generado: ${resumen} </p>`);
+            sendMensajeC();
         break;
 
         case '12':
             console.log('RECIBIDO MENSAJE B');
-            ticketGrantTicket = mensaje.ticketGrantTicket;
-            $("#messages").append(`<li class='list-li' >GranTicked: ${ticketGrantTicket}</li>`);
+            var pass_serv = decrypt(mensaje.pass_serv,own_resumen);
+            $("#messages").append(`<p>Pass del servicio: ${pass_serv}</p>`);
             // SI YA RECIBIO LOS MENSAJES A Y B
-            if (clientTGS != '' && ticketGrantTicket != undefined) {
+            /*if (clientTGS != '' && ticketGrantTicket != undefined) {
                 sendMensajeC();
-            }
+            }*/
             break;
 
         case '31':
@@ -95,9 +92,10 @@ $("#enviar").on('click', function() {
     if(servicio && password && usuario){
         mensaje['code'] = '00';
         mensaje['usuario'] = usuario;
-        mensaje['servicio'] = servicio;
+        //mensaje['servicio'] = servicio;
         client.write(JSON.stringify(mensaje));
         own_resumen = hash(password);
+        console.log('Hash ')
         $('#formCliente').hide();
         $('#messages').removeClass('hide');
         console.log('enviado mensaje 00');
@@ -109,12 +107,13 @@ $("#enviar").on('click', function() {
 
 var sendMensajeC = function() {
     var mensaje = {};
+    clientTGS_C = encrypt(clientTGS, hash(password));
     mensaje['code'] = '21';
-    mensaje['ticketGrantTicket'] = ticketGrantTicket;
+    mensaje['clientTGS'] = clientTGS_C;
     mensaje['servicio'] = servicio;
     client.write(JSON.stringify(mensaje));
     console.log('ENVIADO MENSAJE C');
-    sendMensajeD();
+ //   sendMensajeD();
 }
 
 var sendMensajeD = function() {
