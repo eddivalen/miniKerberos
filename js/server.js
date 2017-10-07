@@ -1,7 +1,7 @@
 //var PORT = 33333;
 'use strict';
 var net = require('net');
-var HOST = '172.168.2.105';
+var HOST = '192.168.13.126';
 var PORT = 34522;
 var user = window.user;
 // var passwords = window.passwords;
@@ -16,15 +16,17 @@ var usuario = { username: 'cliente', password: '1234', id: '3423423sdsd' };
 var fs = require('fs');
 var u_p;
 var s_p;
-var u;
+var u,v;
 var pass = 0;
 var band = 0;
+var pass_serv = 0;
 let rawdata;
 let usuarios;
 rawdata = fs.readFileSync('usuarios.json');
 usuarios = JSON.parse(rawdata);
-u=hash('hola');
-console.log(u);
+rawdata2 = fs.readFileSync('servers.json');
+servicios = JSON.parse(rawdata2);
+
 var server = net.createServer(function(sock) {
     // We have a connection - a socket object is assigned to the connection automatically  
     console.log('CONNECTED: ' + sock.remoteAddress + ':' + sock.remotePort);
@@ -45,14 +47,15 @@ var server = net.createServer(function(sock) {
                 $("#list-clientes").append(`<p>el usuario ${mensaje.usuario} solitó servicio</p>`);
                 // ENVIAR client TGS 
                 sendClienteTGS(cliente, mensaje.usuario);
-                console.log('enviados mensajes A y B');
+                console.log('enviados mensajes A');
                 break;
 
             case '21':
-                ticketGrantTicket = decrypt(mensaje.ticketGrantTicket, TGSSessionKey);
+                var TGS = decrypt(mensaje.clientTGS, hash(pass));
+                if(TGS === passwords.TGSKEY){
+                    sendTicketGrantingClient(cliente, mensaje.servicio);
+                }
                 $("#list-clientes").append(`<li class='list-li' >Llegó mensaje C ${JSON.stringify(mensaje)}</li>`);
-                console.log(ticketGrantTicket);
-                idServicio = mensaje.idServicio;
                 break;
 
             case '22':
@@ -126,18 +129,26 @@ var sendClienteTGS = function(socket, usuario) {
         socket.write(JSON.stringify(mensaje));
         band = 1;
         $("#list-clientes").append(`<p>Enviado mensaje A ${JSON.stringify(mensaje)}</p>`);
-        console.log('enviado mensaje A');
     } else
         console.log('cliente no existe');
     // ENVIAR ticket granted ticket
     //sendTicketGrantingClient(socket, encrypt(usuario, usuario));
 };
 
-var sendTicketGrantingClient = function(socket, clientTGS) {
+var sendTicketGrantingClient = function(socket, serv) {
     var mensaje = {};
+    var array = $.map(servers, function(value, index) {
+        return [value];
+    });
+    var vec = _.last(array);
+    v = _.find(vec, function(o) { return o.nombre == serv; })
+    if (_.isMatch(servers, serv)) {
+        pass_serv = v.pass;
+        console.log(pass_serv);
+    }
     mensaje['code'] = '12';
-    mensaje['idCliente'] = encrypt(usuario.id, TGSSessionKey);
-    mensaje['ticketGrantTicket'] = encrypt(clientTGS, TGSSessionKey);
+    mensaje['pass_serv'] = encrypt(pass_serv, hash(pass));
+    mensaje['tiempo'] = 5;
     socket.write(JSON.stringify(mensaje));
     $("#list-clientes").append(`<li class='list-li' >Enviado mensaje B ${JSON.stringify(mensaje)}</li>`);
     console.log('enviado mensaje B');
