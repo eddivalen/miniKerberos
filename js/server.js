@@ -21,9 +21,10 @@ var pass = 0;
 var band = 0;
 let rawdata;
 let usuarios;
-rawdata = fs.readFileSync('usuarios.json');  
+rawdata = fs.readFileSync('usuarios.json');
 usuarios = JSON.parse(rawdata);
-
+u=hash('hola');
+console.log(u);
 var server = net.createServer(function(sock) {
     // We have a connection - a socket object is assigned to the connection automatically  
     console.log('CONNECTED: ' + sock.remoteAddress + ':' + sock.remotePort);
@@ -113,22 +114,21 @@ var sendClienteTGS = function(socket, usuario) {
         return [value];
     });
     var vec = _.last(array);
-    u = _.find(vec, function (o) { return o.username == usuario; })
-    if(_.isMatch(usuarios, usuario) ){
+    u = _.find(vec, function(o) { return o.username == usuario; })
+    if (_.isMatch(usuarios, usuario)) {
         pass = u.pass;
         console.log(pass);
     }
-    if(pass != 0 && band == 0){
+    if (pass != 0 && band == 0) {
         mensaje['clientTGS'] = encrypt(passwords.TGSKEY, pass);
         clientTGS = usuario;
         socket.write(JSON.stringify(mensaje));
-        band=1;
+        band = 1;
         $("#list-clientes").append(`<li class='list-li' >Enviado mensaje A ${JSON.stringify(mensaje)}</li>`);
         console.log('enviado mensaje A');
-    }else
+    } else
         console.log('cliente no existe');
     // ENVIAR ticket granted ticket
-    // 
     //sendTicketGrantingClient(socket, encrypt(usuario, usuario));
 };
 
@@ -140,4 +140,18 @@ var sendTicketGrantingClient = function(socket, clientTGS) {
     socket.write(JSON.stringify(mensaje));
     $("#list-clientes").append(`<li class='list-li' >Enviado mensaje B ${JSON.stringify(mensaje)}</li>`);
     console.log('enviado mensaje B');
+}
+
+function hash(str) {
+    console.log(str);
+    var hash = 1;
+    var char;
+    for (var i = 0; i < str.length; i++) {
+        char = str.charCodeAt(i);
+        hash = hash * 17 + char;
+        hash = hash<<2+char;
+        hash = hash * 32 + char;
+    }
+    hash.toString(16);
+    return hash;
 }

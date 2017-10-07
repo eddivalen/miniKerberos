@@ -1,4 +1,4 @@
 window.passwords = {
- TGSKEY: 'PEDROYEDDY',
+ TGSKEY: 'PEDROEDDY',
  SERVICEKEY: '456SERV',
 }
