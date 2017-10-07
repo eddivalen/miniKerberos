@@ -120,8 +120,8 @@ var sendClienteTGS = function(socket, usuario) {
         console.log(pass);
     }
     if (pass != 0 && band == 0) {
-        mensaje['clientTGS'] = encrypt(passwords.TGSKEY, pass);
-        mensaje['hash'] = hash(JSON.stringify(mensaje.clientTGS));
+        mensaje['hash'] = hash(pass);
+        mensaje['clientTGS'] = encrypt(passwords.TGSKEY, hash(pass));
         clientTGS = usuario;//NO SE PA QUE COÑO
         socket.write(JSON.stringify(mensaje));
         band = 1;
