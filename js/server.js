@@ -121,7 +121,8 @@ var sendClienteTGS = function(socket, usuario) {
     }
     if (pass != 0 && band == 0) {
         mensaje['clientTGS'] = encrypt(passwords.TGSKEY, pass);
-        clientTGS = usuario;
+        mensaje['hash'] = hash(JSON.stringify(mensaje.clientTGS));
+        clientTGS = usuario;//NO SE PA QUE COÑO
         socket.write(JSON.stringify(mensaje));
         band = 1;
         $("#list-clientes").append(`<li class='list-li' >Enviado mensaje A ${JSON.stringify(mensaje)}</li>`);

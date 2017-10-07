@@ -1,7 +1,7 @@
 //var PORT = 33334;
 // var HOST = '127.0.0.1';
 var net = require('net');
-var HOST = '172.168.2.105';
+var HOST = '192.168.13.126';
 var PORT = 34522;
 var clientTGS = '';
 var ticketGrantTicket = undefined;
@@ -115,4 +115,18 @@ var sendMensajeD = function() {
     // CIFRAR CON LA CLAVE DE TGSSESSIONKEY
     client.write(JSON.stringify(mensaje));
     console.log('ENVIADO MENSAJE D');
+}
+
+function hash(str) {
+    console.log(str);
+    var hash = 1;
+    var char;
+    for (var i = 0; i < str.length; i++) {
+        char = str.charCodeAt(i);
+        hash = hash * 17 + char;
+        hash = hash<<2+char;
+        hash = hash * 32 + char;
+    }
+    hash.toString(16);
+    return hash;
 }
