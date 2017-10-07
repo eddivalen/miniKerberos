@@ -20,8 +20,11 @@ var u,v;
 var pass = 0;
 var band = 0;
 var pass_serv = 0;
+var hashpass = 0;
 let rawdata;
 let usuarios;
+let rawdata2;
+let servicios;
 rawdata = fs.readFileSync('usuarios.json');
 usuarios = JSON.parse(rawdata);
 rawdata2 = fs.readFileSync('servers.json');
@@ -51,7 +54,7 @@ var server = net.createServer(function(sock) {
                 break;
 
             case '21':
-                var TGS = decrypt(mensaje.clientTGS, hash(pass));
+                var TGS = decrypt(mensaje.clientTGS, hashpass);
                 if(TGS === passwords.TGSKEY){
                     sendTicketGrantingClient(cliente, mensaje.servicio);
                 }
@@ -121,10 +124,11 @@ var sendClienteTGS = function(socket, usuario) {
     if (_.isMatch(usuarios, usuario)) {
         pass = u.pass;
         console.log(pass);
+        hashpass=hash(pass);
     }
     if (pass != 0 && band == 0) {
         mensaje['hash'] = hash(pass);
-        mensaje['clientTGS'] = encrypt(passwords.TGSKEY, hash(pass));
+        mensaje['clientTGS'] = encrypt(passwords.TGSKEY, hashpass);
         clientTGS = usuario;//NO SE PA QUE COÑO
         socket.write(JSON.stringify(mensaje));
         band = 1;
@@ -147,7 +151,7 @@ var sendTicketGrantingClient = function(socket, serv) {
         console.log(pass_serv);
     }
     mensaje['code'] = '12';
-    mensaje['pass_serv'] = encrypt(pass_serv, hash(pass));
+    mensaje['pass_serv'] = encrypt(pass_serv, hashpass);
     mensaje['tiempo'] = 5;
     socket.write(JSON.stringify(mensaje));
     $("#list-clientes").append(`<li class='list-li' >Enviado mensaje B ${JSON.stringify(mensaje)}</li>`);
@@ -155,7 +159,6 @@ var sendTicketGrantingClient = function(socket, serv) {
 }
 
 function hash(str) {
-    console.log(str);
     var hash = 1;
     var char;
     for (var i = 0; i < str.length; i++) {
