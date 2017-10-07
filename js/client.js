@@ -1,14 +1,14 @@
 //var PORT = 33334;
 // var HOST = '127.0.0.1';
 var net = require('net');
-var HOST = '192.168.13.126';
+var HOST = '172.168.2.105';
 var PORT = 34522;
 var clientTGS = '';
 var ticketGrantTicket = undefined;
 var mensajeE = '';
 var password = '';
 var servicio = '';
-
+var template = _.template($('#mensajes-template').html());
 var client = net.createConnection({ port: PORT, host: HOST }, function() {
     //'connect' listener
     console.log('connected to server!');
@@ -21,7 +21,12 @@ client.on('data', function(data) {
 
     var mensaje = JSON.parse(data);
     console.log(mensaje);
-    $("#messages").append(`<li class='list-li' >${JSON.stringify(mensaje)}</li>`);
+    msg = {
+        codigo: mensaje.code,
+        clientTGS: mensaje.clientTGS
+    };
+    $('#mensajes').append(template(msg));
+   // $("#messages").append(`<li class='list-li' >${JSON.stringify(mensaje)}</li>`);
 
     switch (mensaje.code) {
         case '11':
@@ -30,7 +35,7 @@ client.on('data', function(data) {
             console.log('PASSWORD CLIENTE: '+password);
             console.log('MENSAJET TGS: '+mensaje.clientTGS);
             clientTGS = decrypt(mensaje.clientTGS, password);
-            $("#messages").append(`<li class='list-li' >Se desencripto: ${clientTGS}</li>`);
+            $("#messages").append(`<p>Se desencripto: ${clientTGS}</p>`);
             break;
 
         case '12':
@@ -72,24 +77,24 @@ client.on('data', function(data) {
         default:
             break;
     }
-    /*if(dato.code == 100){
-      $("#message").html("Que suerte, le están cortando el pelo de una");
-    }
-    if(dato.code > 300){
-      $("#message").html("Disculpe, la barberia esta llena. Vuelva después");
-      client.destroy(); 
-    }*/
 });
 
-$("#aceptar").on('click', function() {
+$("#enviar").on('click', function() {
     var mensaje = {};
     servicio= $('#servicio').val();
     password = $('#password').val();
-    mensaje['code'] = '00';
-    mensaje['usuario'] = $("#usuario").val();
-    client.write(JSON.stringify(mensaje));
-    console.log('enviado mensaje 00');
-    console.log(JSON.stringify(mensaje));
+    usuario = $("#usuario").val();
+    if(servicio && password && usuario){
+        mensaje['code'] = '00';
+        mensaje['usuario'] = usuario;
+        client.write(JSON.stringify(mensaje));
+        $('#formCliente').hide();
+        $('#messages').removeClass('hide');
+        console.log('enviado mensaje 00');
+        console.log(JSON.stringify(mensaje));
+    }else{
+        alert('Debe ingresar los datos correspondientes');
+    }
 });
 
 var sendMensajeC = function() {
