@@ -125,6 +125,8 @@ var sendClienteTGS = function(socket, usuario) {
         pass = u.pass;
         console.log(pass);
         hashpass=hash(pass);
+        hashpass=hashpass.toString();
+        console.log(hashpass);
     }
     if (pass != 0 && band == 0) {
         mensaje['hash'] = hash(pass);
@@ -141,12 +143,12 @@ var sendClienteTGS = function(socket, usuario) {
 
 var sendTicketGrantingClient = function(socket, serv) {
     var mensaje = {};
-    var array = $.map(servers, function(value, index) {
+    var array = $.map(servicios, function(value, index) {
         return [value];
     });
     var vec = _.last(array);
     v = _.find(vec, function(o) { return o.nombre == serv; })
-    if (_.isMatch(servers, serv)) {
+    if (_.isMatch(servicios, serv)) {
         pass_serv = v.pass;
         console.log(pass_serv);
     }

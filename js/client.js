@@ -1,7 +1,7 @@
 //var PORT = 33334;
 // var HOST = '127.0.0.1';
 var net = require('net');
-var HOST = '172.168.2.105';
+var HOST = '192.168.13.126';
 var PORT = 34522;
 var clientTGS = '';
 var ticketGrantTicket = undefined;
@@ -95,6 +95,7 @@ $("#enviar").on('click', function() {
         //mensaje['servicio'] = servicio;
         client.write(JSON.stringify(mensaje));
         own_resumen = hash(password);
+        own_resumen=own_resumen.toString();
         console.log('Hash ')
         $('#formCliente').hide();
         $('#messages').removeClass('hide');
@@ -127,7 +128,6 @@ var sendMensajeD = function() {
 }
 
 function hash(str) {
-    console.log(str);
     var hash = 1;
     var char;
     for (var i = 0; i < str.length; i++) {
