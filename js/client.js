@@ -36,7 +36,7 @@ client.on('data', function(data) {
             console.log('PASSWORD CLIENTE: '+password);
             console.log('MENSAJET TGS: '+mensaje.clientTGS);
             console.log('Hash recibido:'+mensaje.hash);
-            clientTGS = decrypt(mensaje.clientTGS, hash(password));
+            clientTGS = decrypt(mensaje.clientTGS,own_resumen);
             $("#messages").append(`<p>Se desencripto: ${clientTGS}</p>`);
             $("#messages").append(`<p>ClientTGS Recibido: ${mensaje.clientTGS} </p>`);
             //$("#messages").append(`<p>HASH Recibido: ${mensaje.hash} HASH Generado: ${resumen} </p>`);
@@ -107,7 +107,7 @@ $("#enviar").on('click', function() {
 
 var sendMensajeC = function() {
     var mensaje = {};
-    clientTGS_C = encrypt(clientTGS, hash(password));
+    clientTGS_C = encrypt(clientTGS, own_resumen);
     mensaje['code'] = '21';
     mensaje['clientTGS'] = clientTGS_C;
     mensaje['servicio'] = servicio;
