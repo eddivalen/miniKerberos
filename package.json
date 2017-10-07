@@ -1,9 +1,19 @@
 {
   "name": "miniKerberos",
   "version": "0.0.1",
-  "main": "index.html",
+  "main": "/html/index.html",
   "single-instance": false,
+  "window": {
+    "width": 840,
+    "height": 630,
+    "toolbar": true
+  },
   "dependencies": {
-    "jsonfile": "^4.0.0"
-  }
+    "jquery": "^2.2.4",
+    "jsonfile": "^4.0.0",
+    "material-design-icons": "^2.2.3"
+  },
+  "description": "MiniKerberos",
+  "repository": {},
+  "author": "pedrocadevilla,eddivalen"
 }
