@@ -1,7 +1,7 @@
 //var PORT = 33333;
 'use strict';
 var net = require('net');
-var HOST = '192.168.13.126';
+var HOST = '172.168.2.105';
 var PORT = 34522;
 var user = window.user;
 // var passwords = window.passwords;
@@ -42,7 +42,7 @@ var server = net.createServer(function(sock) {
             // AS
             // El cliente hace la solicitud de autenticacion
             case '00':
-                $("#list-clientes").append(`<li class='list-li' >el usuario ${mensaje.usuario} solitó servicio</li>`);
+                $("#list-clientes").append(`<p>el usuario ${mensaje.usuario} solitó servicio</p>`);
                 // ENVIAR client TGS 
                 sendClienteTGS(cliente, mensaje.usuario);
                 console.log('enviados mensajes A y B');
@@ -125,7 +125,7 @@ var sendClienteTGS = function(socket, usuario) {
         clientTGS = usuario;//NO SE PA QUE COÑO
         socket.write(JSON.stringify(mensaje));
         band = 1;
-        $("#list-clientes").append(`<li class='list-li' >Enviado mensaje A ${JSON.stringify(mensaje)}</li>`);
+        $("#list-clientes").append(`<p>Enviado mensaje A ${JSON.stringify(mensaje)}</p>`);
         console.log('enviado mensaje A');
     } else
         console.log('cliente no existe');
