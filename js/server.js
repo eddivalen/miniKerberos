@@ -1,8 +1,8 @@
 //var PORT = 33333;
 'use strict';
 var net = require('net');
-var HOST = '172.168.2.103';
-var PORT = 34522;
+var HOST = '127.0.0.1';
+var PORT = 33334;
 var user = window.user;
 // var passwords = window.passwords;
 var TGSSessionKey = 'chavezVive';
@@ -18,7 +18,6 @@ var u_p;
 var s_p;
 var u,v;
 var pass = 0;
-var band = 0;
 var pass_serv = 0;
 var hashpass = 0;
 let rawdata;
@@ -120,23 +119,28 @@ var sendClienteTGS = function(socket, usuario) {
         return [value];
     });
     var vec = _.last(array);
-    u = _.find(vec, function(o) { return o.username == usuario; })
-    if (_.isMatch(usuarios, usuario)) {
-        pass = u.pass;
-        console.log(pass);
-        hashpass=hash(pass);
-        hashpass=hashpass.toString();
-        console.log(hashpass);
+    u = _.find(vec, function(o) { return o.username == usuario; });
+    if(u){
+        if (_.isMatch(usuarios, usuario)) {
+            pass = u.pass;
+            console.log(pass);
+            hashpass=hash(pass);
+            hashpass=hashpass.toString();
+            console.log(hashpass);
+        }
+        if (pass != 0) {
+            mensaje['hash'] = hash(pass);
+            mensaje['clientTGS'] = encrypt(passwords.TGSKEY, hashpass);
+            clientTGS = usuario;//NO SE PA QUE COÑO
+            socket.write(JSON.stringify(mensaje));
+            $("#list-clientes").append(`<p>Enviado mensaje A ${JSON.stringify(mensaje)}</p>`);
+        } else{
+            console.log('cliente no existe');
+            alert('Cliente no se encuentra en la base de datos.');
+        }
+    }else{
+         alert('Cliente no se encuentra en la base de datos.');
     }
-    if (pass != 0 && band == 0) {
-        mensaje['hash'] = hash(pass);
-        mensaje['clientTGS'] = encrypt(passwords.TGSKEY, hashpass);
-        clientTGS = usuario;//NO SE PA QUE COÑO
-        socket.write(JSON.stringify(mensaje));
-        band = 1;
-        $("#list-clientes").append(`<p>Enviado mensaje A ${JSON.stringify(mensaje)}</p>`);
-    } else
-        console.log('cliente no existe');
     // ENVIAR ticket granted ticket
     //sendTicketGrantingClient(socket, encrypt(usuario, usuario));
 };
@@ -147,16 +151,20 @@ var sendTicketGrantingClient = function(socket, serv) {
         return [value];
     });
     var vec = _.last(array);
-    v = _.find(vec, function(o) { return o.nombre == serv; })
-    if (_.isMatch(servicios, serv)) {
-        pass_serv = v.pass;
-        console.log(pass_serv);
+    v = _.find(vec, function(o) { return o.nombre == serv; });
+    if(v){
+        if (_.isMatch(servicios, serv)) {
+            pass_serv = v.pass;
+            console.log(pass_serv);
+        }
+    }else{
+        alert('El servicio solicitado no se encuentra en la base de datos.');
     }
     mensaje['code'] = '12';
     mensaje['pass_serv'] = encrypt(pass_serv, hashpass);
     mensaje['tiempo'] = 5;
     socket.write(JSON.stringify(mensaje));
-    $("#list-clientes").append(`<li class='list-li' >Enviado mensaje B ${JSON.stringify(mensaje)}</li>`);
+    $("#list-clientes").append(`<p>Enviado mensaje B ${JSON.stringify(mensaje)}</p>`);
     console.log('enviado mensaje B');
 }
 
