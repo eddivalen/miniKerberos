@@ -4,8 +4,8 @@
   "main": "/html/index.html",
   "single-instance": false,
   "window": {
-    "width": 840,
-    "height": 630,
+    "width": 950,
+    "height": 670,
     "toolbar": true
   },
   "dependencies": {

@@ -8,16 +8,20 @@ var ticketGrantTicket = undefined;
 var mensajeE = '';
 var password = '';
 var servicio = '';
-var template = _.template($('#mensajes-template').html());
+var template_mensajes = _.template($('#mensajes-template').html());
+var template_server = _.template($('#server-template').html());
+var template_messages = _.template($('#messages-template').html());
 var own_resumen;
 var client = net.createConnection({ port: PORT, host: HOST }, function() {
-    //'connect' listener
-    console.log('connected to server!');
-    //client.write('Hola');
+     msg = {
+        IP: HOST,
+        Mensaje: 'Conectado al servidor'
+    };
+    $('#server').append(template_server(msg));
+    console.log('El cliente se ha conectado correctamente al servidor:'+HOST);
+
 });
 
-// Add a 'data' event handler for the client socket
-// data is what the server sent to this socket
 client.on('data', function(data) {
 
     var mensaje = JSON.parse(data);
@@ -26,59 +30,43 @@ client.on('data', function(data) {
         codigo: mensaje.code,
         clientTGS: mensaje.clientTGS
     };
-    $('#mensajes').append(template(msg));
-   // $("#messages").append(`<li class='list-li' >${JSON.stringify(mensaje)}</li>`);
 
     switch (mensaje.code) {
         case '11':
-            console.log('RECIBIDO MENSAJE A');
-            // DESENCRIPTAR SEGUN PASSWORD
-            console.log('PASSWORD CLIENTE: '+password);
-            console.log('MENSAJET TGS: '+mensaje.clientTGS);
+            console.log('Mensaje recibido: A');
+            console.log('Password Cliente:: '+password);
+            console.log('MENSAJE TGS: '+mensaje.clientTGS);
             console.log('Hash recibido:'+mensaje.hash);
             clientTGS = decrypt(mensaje.clientTGS,own_resumen);
-            $("#messages").append(`<p>Se desencripto: ${clientTGS}</p>`);
-            $("#messages").append(`<p>ClientTGS Recibido: ${mensaje.clientTGS} </p>`);
-            //$("#messages").append(`<p>HASH Recibido: ${mensaje.hash} HASH Generado: ${resumen} </p>`);
+            msg = {
+                    Estado: 'Recibido',
+                    Mensaje: 'A',
+                    hash: 'hash recibido:'+mensaje.hash,
+                    clientTGS: 'clientTGS:'+mensaje.clientTGS,
+                    pass_serv: '',
+                    tiempo: '',
+                    servicio: '',
+                    decrypt: 'Se desencripto:'+clientTGS
+            };
+            $('#messages').append(template_messages(msg));
             sendMensajeC();
         break;
 
         case '12':
             console.log('RECIBIDO MENSAJE B');
             var pass_serv = decrypt(mensaje.pass_serv,own_resumen);
-            $("#messages").append(`<p>Pass del servicio: ${pass_serv}</p>`);
-            // SI YA RECIBIO LOS MENSAJES A Y B
-            /*if (clientTGS != '' && ticketGrantTicket != undefined) {
-                sendMensajeC();
-            }*/
+            msg = {
+                    Estado: 'Recibido',
+                    Mensaje: 'B',
+                    hash: '',
+                    clientTGS: '',
+                    pass_serv: 'pass_serv:'+mensaje.pass_serv,
+                    tiempo: 'tiempo:'+mensaje.tiempo,
+                    servicio: '',
+                    decrypt: 'Se desencripto:'+pass_serv
+            };
+            $('#messages').append(template_messages(msg));
             break;
-
-        case '31':
-            console.log('LLEGO EL MENSAJE E');
-            mensajeE = mensaje;
-            break;
-
-        case '32':
-            console.log('LLEGO MENSAJE F');
-            var SSK = decrypt(mensaje.serverSessionKey, clientTGS);
-            $("#messages").append(`<li class='list-li' >Session Service Key: ${SSK}</li>`);
-            var mensaje = {};
-            mensaje['code'] = '41';
-            mensaje['mensajeE'] = mensajeE;
-            client.write(JSON.stringify(mensaje));
-            console.log('ENVIADO MENSAJE E A SERVER S');
-            setTimeout(function() {
-                var r = {};
-                r['code'] = '42';
-                r['idCliente'] = encrypt(idCliente, SSK);
-                r['timeStamp'] = encrypt(new Date().getTime().toString(), SSK);
-                client.write(JSON.stringify(r));
-                console.log('ENVIADO MENSAJE G');
-            }, 200);
-            break;
-
-        case '51':
-            console.log(mensaje.servicio);
         default:
             break;
     }
@@ -92,13 +80,12 @@ $("#enviar").on('click', function() {
     if(servicio && password && usuario){
         mensaje['code'] = '00';
         mensaje['usuario'] = usuario;
-        //mensaje['servicio'] = servicio;
         client.write(JSON.stringify(mensaje));
         own_resumen = hash(password);
         own_resumen=own_resumen.toString();
         console.log('Hash ')
         $('#formCliente').hide();
-        $('#messages').removeClass('hide');
+        $('#container').removeClass('hide');
         console.log('enviado mensaje 00');
         console.log(JSON.stringify(mensaje));
     }else{
@@ -114,17 +101,17 @@ var sendMensajeC = function() {
     mensaje['servicio'] = servicio;
     client.write(JSON.stringify(mensaje));
     console.log('ENVIADO MENSAJE C');
- //   sendMensajeD();
-}
-
-var sendMensajeD = function() {
-    var mensaje = {};
-    mensaje['code'] = '22';
-    mensaje['idCliente'] = encrypt(idCliente, clientTGS);
-    mensaje['timeStamp'] = encrypt(new Date().getTime().toString(), clientTGS);
-    // CIFRAR CON LA CLAVE DE TGSSESSIONKEY
-    client.write(JSON.stringify(mensaje));
-    console.log('ENVIADO MENSAJE D');
+    msg = {
+        Estado: 'Enviado',
+        Mensaje: 'C',
+        hash: '',
+        clientTGS: 'clientTGS:'+clientTGS_C,
+        pass_serv: '',
+        tiempo: '',
+        servicio: 'servicio:'+servicio,
+        decrypt: ''
+    };
+    $('#messages').append(template_messages(msg));
 }
 
 function hash(str) {

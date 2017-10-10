@@ -2,3 +2,12 @@
 	margin-top: 50px;
 
 }
+.border{
+	border-bottom: 2px solid rgba(0,0,0,0.2);
+}
+.no-border{
+	margin-bottom: 0px !important;
+}
+h4.header.center.blue-text{
+	margin-top: 0px !important;
+}

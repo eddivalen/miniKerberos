@@ -4,14 +4,9 @@ var net = require('net');
 var HOST = '127.0.0.1';
 var PORT = 33334;
 var user = window.user;
-// var passwords = window.passwords;
-var TGSSessionKey = 'chavezVive';
 var clientTGS = '';
 var cliente = undefined;
-var ticketGrantTicket = '';
 var idServicio = '';
-var timeStamp = '';
-var serverSessionKey = 'ramosAllup';
 var usuario = { username: 'cliente', password: '1234', id: '3423423sdsd' };
 var fs = require('fs');
 var u_p;
@@ -24,30 +19,40 @@ let rawdata;
 let usuarios;
 let rawdata2;
 let servicios;
+var template_client_connected = _.template($('#client-connected-template').html());
+var template_usuario_msg = _.template($('#usuario-msg-template').html());
+var template_messages = _.template($('#messages-template').html());
+var template_tgs_key = _.template($('#tgs-key-template').html());
 rawdata = fs.readFileSync('usuarios.json');
 usuarios = JSON.parse(rawdata);
 rawdata2 = fs.readFileSync('servers.json');
 servicios = JSON.parse(rawdata2);
-
+var msg;
 var server = net.createServer(function(sock) {
-    // We have a connection - a socket object is assigned to the connection automatically  
-    console.log('CONNECTED: ' + sock.remoteAddress + ':' + sock.remotePort);
+    console.log('Cliente conectado: ' + sock.remoteAddress + ':' + sock.remotePort);
+    msg = {
+        IP: sock.remoteAddress,
+        MSJ: 'Cliente conectado'
+    };
+    $('#client-connected').append(template_client_connected(msg));
+    msg = {
+        TGSKEY: passwords.TGSKEY
+    };
+    $('#tgs-key').append(template_tgs_key(msg));
     var mensaje;
     var remoteAddress = sock.remoteAddress;
     var remotePort = sock.remotePort;
     cliente = sock;
-    // mensaje = handleClientes(sock);
-    // sock.write(JSON.stringify(mensaje));
-    // Add a 'data' event handler to this instance of socket
     sock.on('data', function(data) {
         mensaje = JSON.parse(data);
         console.log(mensaje);
         switch (mensaje.code) {
-            // AS
-            // El cliente hace la solicitud de autenticacion
             case '00':
-                $("#list-clientes").append(`<p>el usuario ${mensaje.usuario} solitó servicio</p>`);
-                // ENVIAR client TGS 
+                msg = {
+                    Usuario: mensaje.usuario,
+                    Mensaje: 'Solicitó servicio'
+                };
+                $('#usuario-msg').append(template_usuario_msg(msg));
                 sendClienteTGS(cliente, mensaje.usuario);
                 console.log('enviados mensajes A');
                 break;
@@ -57,38 +62,17 @@ var server = net.createServer(function(sock) {
                 if(TGS === passwords.TGSKEY){
                     sendTicketGrantingClient(cliente, mensaje.servicio);
                 }
-                $("#list-clientes").append(`<p>Llegó mensaje C ${JSON.stringify(mensaje)}</p>`);
-                break;
-
-            case '22':
-                $("#list-clientes").append(`<li class='list-li' >Llegó mensaje D ${JSON.stringify(mensaje)}</li>`);
-                idCliente = decrypt(mensaje.idCliente, clientTGS);
-                timeStamp = decrypt(mensaje.timeStamp, clientTGS);
-                var mensaje = {};
-                mensaje['code'] = '31';
-                mensaje['idCliente'] = encrypt(usuario['id'], serverSessionKey);
-                sock.write(JSON.stringify(mensaje));
-                console.log('ENVIADO mensaje E');
-                $("#list-clientes").append(`<li class='list-li' >Enviado mensaje E ${JSON.stringify(mensaje)}</li>`);
-                var mensaje = {};
-                mensaje['code'] = '32';
-                mensaje['serverSessionKey'] = encrypt(serverSessionKey, clientTGS);
-                sock.write(JSON.stringify(mensaje));
-                console.log('ENVIADO mensaje F');
-                $("#list-clientes").append(`<li class='list-li' >Enviado mensaje F ${JSON.stringify(mensaje)}</li>`);
-                break;
-
-            case '41':
-                var id = decrypt(mensaje.mensajeE.idCliente, serverSessionKey);
-                if (id == usuario.id) {
-                    console.log('AUTENTICAAADDDOOO');
-                    $("#list-clientes").append("<li class='list-li'>AUTENTICADO</li>");
-                }
-                console.log(mensaje);
-                var a = {};
-                a['code'] = '51';
-                a['servicio'] = 'holaaaaa';
-                sock.write(JSON.stringify(a));
+                msg = {
+                    Estado: 'Recibido',
+                    Mensaje: 'C',
+                    hash: '',
+                    clientTGS: 'clientTGS:'+mensaje.clientTGS,
+                    pass_serv: '',
+                    tiempo: '',
+                    servicio: 'servicio:'+mensaje.servicio
+                };
+                $('#messages').append(template_messages(msg));
+                //$("#list-clientes").append(`<p>Llegó mensaje C ${JSON.stringify(mensaje)}</p>`);
                 break;
             default:
                 break;
@@ -97,7 +81,6 @@ var server = net.createServer(function(sock) {
     sock.on('close', function() {
         console.log('CLOSED: ' + sock.remoteAddress + ' ' + sock.remotePort);
     })
-    // Add a 'close' event handler to this instance of socket
     sock.on('end', function() {
         console.log('CLOSED: ' + remoteAddress + ' ' + remotePort);
     });
@@ -112,9 +95,6 @@ server.listen({
 var sendClienteTGS = function(socket, usuario) {
     var mensaje = {};
     mensaje['code'] = '11';
-    // Buscar el usuario
-    // Encriptar el TGS usando el password del user
-    // Enviar TGS generado
     var array = $.map(usuarios, function(value, index) {
         return [value];
     });
@@ -129,11 +109,23 @@ var sendClienteTGS = function(socket, usuario) {
             console.log(hashpass);
         }
         if (pass != 0) {
-            mensaje['hash'] = hash(pass);
+            var hashed = hash(pass);
+            var client_tgs_encrypted = encrypt(passwords.TGSKEY, hashpass);
+            mensaje['hash'] = hashed;
             mensaje['clientTGS'] = encrypt(passwords.TGSKEY, hashpass);
-            clientTGS = usuario;//NO SE PA QUE COÑO
+            clientTGS = usuario;
             socket.write(JSON.stringify(mensaje));
-            $("#list-clientes").append(`<p>Enviado mensaje A ${JSON.stringify(mensaje)}</p>`);
+            msg = {
+                    Estado: 'Enviado',
+                    Mensaje: 'A',
+                    hash: 'hash:'+hashed,
+                    clientTGS: 'clientTGS:'+client_tgs_encrypted,
+                    pass_serv: '',
+                    tiempo: '',
+                    servicio: ''
+                };
+            $('#messages').append(template_messages(msg));
+            //$("#list-clientes").append(`<p>Enviado mensaje A ${JSON.stringify(mensaje)}</p>`);
         } else{
             console.log('cliente no existe');
             alert('Cliente no se encuentra en la base de datos.');
@@ -147,6 +139,7 @@ var sendClienteTGS = function(socket, usuario) {
 
 var sendTicketGrantingClient = function(socket, serv) {
     var mensaje = {};
+    
     var array = $.map(servicios, function(value, index) {
         return [value];
     });
@@ -164,7 +157,17 @@ var sendTicketGrantingClient = function(socket, serv) {
     mensaje['pass_serv'] = encrypt(pass_serv, hashpass);
     mensaje['tiempo'] = 5;
     socket.write(JSON.stringify(mensaje));
-    $("#list-clientes").append(`<p>Enviado mensaje B ${JSON.stringify(mensaje)}</p>`);
+    msg = {
+                    Estado: 'Enviado',
+                    Mensaje: 'B',
+                    hash: '',
+                    clientTGS: '',
+                    pass_serv: 'pass_serv:'+encrypt(pass_serv, hashpass),
+                    tiempo: 'tiempo:5',
+                    servicio: ''
+                };
+    $('#messages').append(template_messages(msg));
+   // $("#list-clientes").append(`<p>Enviado mensaje B ${JSON.stringify(mensaje)}</p>`);
     console.log('enviado mensaje B');
 }
 
