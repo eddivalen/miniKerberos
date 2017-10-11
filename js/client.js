@@ -11,6 +11,7 @@ var servicio = '';
 var template_mensajes = _.template($('#mensajes-template').html());
 var template_server = _.template($('#server-template').html());
 var template_messages = _.template($('#messages-template').html());
+var template_hash = _.template($('#hash-gen-template').html());
 var own_resumen;
 var client = net.createConnection({ port: PORT, host: HOST }, function() {
      msg = {
@@ -36,12 +37,10 @@ client.on('data', function(data) {
             console.log('Mensaje recibido: A');
             console.log('Password Cliente:: '+password);
             console.log('MENSAJE TGS: '+mensaje.clientTGS);
-            console.log('Hash recibido:'+mensaje.hash);
             clientTGS = decrypt(mensaje.clientTGS,own_resumen);
             msg = {
                     Estado: 'Recibido',
                     Mensaje: 'A',
-                    hash: 'hash recibido:'+mensaje.hash,
                     clientTGS: 'clientTGS:'+mensaje.clientTGS,
                     pass_serv: '',
                     tiempo: '',
@@ -58,7 +57,6 @@ client.on('data', function(data) {
             msg = {
                     Estado: 'Recibido',
                     Mensaje: 'B',
-                    hash: '',
                     clientTGS: '',
                     pass_serv: 'pass_serv:'+mensaje.pass_serv,
                     tiempo: 'tiempo:'+mensaje.tiempo,
@@ -86,6 +84,10 @@ $("#enviar").on('click', function() {
         console.log('Hash ')
         $('#formCliente').hide();
         $('#container').removeClass('hide');
+        msg = {
+            HASH: own_resumen
+            };
+        $('#hash-gen-client').append(template_hash(msg));
         console.log('enviado mensaje 00');
         console.log(JSON.stringify(mensaje));
     }else{
@@ -104,7 +106,6 @@ var sendMensajeC = function() {
     msg = {
         Estado: 'Enviado',
         Mensaje: 'C',
-        hash: '',
         clientTGS: 'clientTGS:'+clientTGS_C,
         pass_serv: '',
         tiempo: '',

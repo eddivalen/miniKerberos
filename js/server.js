@@ -36,7 +36,8 @@ var server = net.createServer(function(sock) {
     };
     $('#client-connected').append(template_client_connected(msg));
     msg = {
-        TGSKEY: passwords.TGSKEY
+        TGSKEY: passwords.TGSKEY,
+        HASH: ''
     };
     $('#tgs-key').append(template_tgs_key(msg));
     var mensaje;
@@ -65,7 +66,6 @@ var server = net.createServer(function(sock) {
                 msg = {
                     Estado: 'Recibido',
                     Mensaje: 'C',
-                    hash: '',
                     clientTGS: 'clientTGS:'+mensaje.clientTGS,
                     pass_serv: '',
                     tiempo: '',
@@ -107,6 +107,11 @@ var sendClienteTGS = function(socket, usuario) {
             hashpass=hash(pass);
             hashpass=hashpass.toString();
             console.log(hashpass);
+            msg = {
+                TGSKEY:'',
+                HASH: hashpass
+            };
+            $('#hash-gen').append(template_tgs_key(msg));
         }
         if (pass != 0) {
             var hashed = hash(pass);
@@ -118,7 +123,6 @@ var sendClienteTGS = function(socket, usuario) {
             msg = {
                     Estado: 'Enviado',
                     Mensaje: 'A',
-                    hash: 'hash:'+hashed,
                     clientTGS: 'clientTGS:'+client_tgs_encrypted,
                     pass_serv: '',
                     tiempo: '',
@@ -160,7 +164,6 @@ var sendTicketGrantingClient = function(socket, serv) {
     msg = {
                     Estado: 'Enviado',
                     Mensaje: 'B',
-                    hash: '',
                     clientTGS: '',
                     pass_serv: 'pass_serv:'+encrypt(pass_serv, hashpass),
                     tiempo: 'tiempo:5',
