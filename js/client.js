@@ -2,7 +2,7 @@
 // var HOST = '127.0.0.1';
 var net = require('net');
 var HOST = '127.0.0.1';
-var PORT = 33334;
+var PORT = 5001;
 var clientTGS = '';
 var ticketGrantTicket = undefined;
 var mensajeE = '';
@@ -120,10 +120,10 @@ function hash(str) {
     var char;
     for (var i = 0; i < str.length; i++) {
         char = str.charCodeAt(i);
-        hash = hash * 17 + char;
-        hash = hash<<2+char;
-        hash = hash * 32 + char;
+        hash = (hash * 17) + char;
+        hash = hash<<3*char;
+        hash = (hash * 47) - char;
     }
-    hash.toString(16);
-    return hash;
+    var b= hash.toString(16);
+    return b;
 }
